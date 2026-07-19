@@ -1,0 +1,39 @@
+MIT License
+
+Copyright (c) 2026 Michael Ekstrom
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+NOTE ON REUSED COMPONENTS
+
+This license covers only the original content of the pocket-agc repository
+(documentation, and future original code). It does NOT cover third-party
+components the project reuses:
+
+  - The original Apollo flight software (e.g. Comanche055, Luminary099) is
+    US government work in the public domain.
+
+  - Virtual AGC components (e.g. yaAGC, yaDSKY2) are distributed under the
+    GNU General Public License by their authors.
+
+Once this project distributes a build that includes or links such components,
+the combined work will likely need to adopt a GPL-compatible license. See
+docs/04-prior-art.md for the tracked licensing decision.

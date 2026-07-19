@@ -1,0 +1,26 @@
+# OS files
+.DS_Store
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Phase 1+ build artifacts (not present yet; here so the first code drop is clean)
+# Virtual AGC / yaAGC build outputs
+*.o
+*.obj
+*.bin
+*.agc.bin
+/vendor/virtualagc/
+
+# Node (if the DSKY UI ends up web/React-native based)
+node_modules/
+
+# Python (if IO device models are Python)
+__pycache__/
+.venv/
+
+# Environment / secrets
+.env
+!.env.example
