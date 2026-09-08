@@ -1,5 +1,9 @@
 # pocket-agc
 
+> **Read-only mirror.** This project is developed on a self-hosted GitLab instance and
+> mirrored to GitHub for visibility. Issues and pull requests are not accepted here;
+> the mirror is overwritten on every push. Contact: see the profile of [@mekstromjr](https://github.com/mekstromjr).
+
 > "There's more computing power in your phone than was used to go to the Moon."
 > Fine. Then let's make a phone *actually fly the mission.*
 
