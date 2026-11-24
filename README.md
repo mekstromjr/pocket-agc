@@ -1,94 +1,65 @@
 # pocket-agc
 
-> **Read-only mirror.** This project is developed on a self-hosted GitLab instance and
-> mirrored to GitHub for visibility. Issues and pull requests are not accepted here;
-> the mirror is overwritten on every push. Contact: see the profile of [@mekstromjr](https://github.com/mekstromjr).
+pocket-agc is a plan to run the real Apollo Guidance Computer (AGC) flight software on an old, rooted smartphone, with a native touchscreen DSKY and simulated spacecraft IO.
 
-> "There's more computing power in your phone than was used to go to the Moon."
-> Fine. Then let's make a phone *actually fly the mission.*
+![A DSKY rendered in the browser on meklab.net during its lamp test, every digit lit: the warning-lamp block on the left, the PROG, VERB, NOUN and three register displays on the right, and the keypad below. It is the display the phone will imitate](docs/screenshots/pocket-agc-dsky.webp)
 
-**pocket-agc** is a project to turn an old, fully jailbroken smartphone into a
-faithful, drop-in stand-in for the **Apollo Guidance Computer (AGC)** — the
-computer that guided the Command and Lunar Modules to the Moon and back.
+**Status:** Research and design; Phase 0 (desktop yaAGC + yaDSKY2 running Luminary099) is the first build milestone. There is no code in this repository yet.
 
-The phone runs the *real, unmodified Apollo flight software* on a cycle-accurate
-AGC emulator. On top of that sits a native **DSKY** (Display & Keyboard) — the
-green numeric console the astronauts actually used — so you interact with it the
-way Buzz Aldrin did: by punching **Verb** and **Noun** codes. Underneath, the
-project progressively replaces the emulator's fake sensors and actuators with
-*simulated* IO devices (IMU, radar, engines, RCS thrusters), and — as a stretch
-goal — a *conceptual custom USB IO board* that could drive real hardware.
+Developed on a self-hosted GitLab; this GitHub repo is a read-only mirror.
 
-This repository is the **vision, research, and design home** for the project. It
-is documentation-first on purpose: the hard part of this project is not writing
-code, it is *understanding a 1960s real-time avionics computer well enough to
-honor it.* Code lands in later phases (see the [roadmap](docs/roadmap.md)).
+## The idea
 
----
+The phone runs the unmodified Apollo 11 flight software on a cycle-accurate AGC emulator. A native **DSKY** (Display and Keyboard), the console the astronauts used, sits on top, so you drive it the original way: by entering **Verb** and **Noun** codes. Underneath, the emulator's stand-in sensors and actuators are replaced step by step with simulated IO devices (IMU, radar, engines, RCS thrusters), and, as a stretch goal, a design for a USB IO board that could drive real hardware.
 
-## Why this is achievable (the good news)
+The project is documentation-first on purpose. The hard part is not writing code but understanding a 1960s real-time avionics computer well enough to host it faithfully.
 
-Almost every hard piece already exists as open source. The project is mostly
-*integration and IO faithfulness*, not reinvention:
+## Why it is feasible
 
-- **The flight software is real and public.** MIT's original Apollo 11 source —
-  `Comanche055` (Command Module) and `Luminary099` (Lunar Module) — has been
-  transcribed from the original listings and is publicly available. It is US
-  government work.
-- **A cycle-accurate CPU emulator exists.** Ron Burkey's **Virtual AGC** project
-  provides `yaAGC`, which runs the *assembled original binaries*, plus `yaDSKY2`,
-  a working DSKY emulator. It is GPL-licensed.
-- **The IO model is documented.** The AGC talked to the spacecraft through
-  numbered **input/output channels** and **counter increments**. `yaAGC` exposes
-  exactly this over a documented socket protocol — which is the clean seam where
-  our DSKY, our simulated devices, and (someday) real hardware plug in.
+Most of the hard pieces already exist as open source, so the work is integration and IO fidelity rather than reinvention:
 
-So the reframing that makes this tractable:
+- **The flight software is public.** MIT's Apollo 11 source, `Comanche055` (Command Module) and `Luminary099` (Lunar Module), has been transcribed from the original listings. It is US government work.
+- **A cycle-accurate emulator exists.** Ron Burkey's Virtual AGC project provides `yaAGC`, which runs the assembled original binaries, and `yaDSKY2`, a DSKY emulator. Both are GPL-licensed.
+- **The IO model is documented.** The AGC talked to the spacecraft through numbered input/output channels and counter increments. `yaAGC` exposes exactly this over a socket protocol, which is the seam where the DSKY, simulated devices and any future hardware plug in.
 
-> We are **not** re-implementing the AGC. We are **hosting the real AGC brain on
-> a phone**, giving it a great DSKY, and steadily swapping its fake world for a
-> simulated — then physical — one.
+## Architecture
 
-See [`docs/04-prior-art.md`](docs/04-prior-art.md) for what we reuse vs. build,
-and the licensing implications.
+Three layers joined by one boundary, the AGC's channel and counter IO:
 
-## Project pillars
+- **Brain:** `yaAGC` running the original Luminary or Colossus binaries.
+- **Face:** a native DSKY app that sends keycodes and receives display and lamp state. It contains no guidance logic.
+- **World:** device processes that translate between physics quantities and AGC pulses or bits. Software models with a minimal spacecraft physics model first (Phase 2), then a conceptual USB IO board (Phase 3) that implements the same contract.
 
-1. **Faithful, not "inspired by."** Run the real binaries. Honor the real Verb/
-   Noun interface, the real channel IO, the real 1201/1202 alarm behavior.
-2. **The phone is a host, the DSKY is a peripheral.** Clean separation between
-   the AGC core and everything that talks to it — the same boundary a hardware
-   IO board would sit on.
-3. **Simulate the world before wiring it.** Every physical device (gyro, radar,
-   engine) gets a software model first. Hardware is the last mile, not the first.
-4. **Every milestone is a story.** The phases are structured so each one is a
-   demonstrable, filmable "it works now" moment.
+Keeping that boundary pure is the main design rule: neither the UI nor a device may bypass the physics or the guidance software. Details in [docs/02-architecture.md](docs/02-architecture.md).
 
-## Repository layout
+## Roadmap
+
+| Phase | Goal | Demo |
+|---|---|---|
+| 0. Vision and research (in progress) | Docs done; build `yaAGC` and `yaDSKY2` on a desktop and run `Luminary099` | Real Luminary software on a laptop, driven from the keyboard |
+| 1. Runs on the phone | `yaAGC` on the phone's Linux userland plus a native DSKY over the local socket | Verb/Noun entry on a touchscreen DSKY |
+| 2. Simulated spacecraft | PIPA, IMU/CDU, RCS, descent engine and landing radar models; fly P63/P64 | A simulated powered descent, including a 1201/1202 alarm and recovery |
+| 3. Hardware bridge (stretch) | Specify a USB IO board that is a drop-in replacement for the Phase 2 models | Schematic, and optionally one real sensor driving an AGC counter |
+
+Task-level checklist in [docs/roadmap.md](docs/roadmap.md).
+
+## Documents
 
 ```
-README.md              This file — the pitch and the map.
 docs/
-  00-vision.md         Goals, non-goals, and the "why" in depth.
-  01-agc-primer.md     How the real AGC worked: DSKY, channels, counters, the executive.
-  02-architecture.md   The pocket-agc stack: phone host, AGC core, DSKY UI, IO bus, future PCB.
-  03-io-devices.md     Inventory of every IO device the AGC talked to and what simulating it needs.
-  04-prior-art.md      Virtual AGC, MIT source, licenses — what we reuse and what we build.
-  roadmap.md           Phase 0..3 milestones. Each phase ≈ one video.
-research/              Scratch notes, reference tables, links. Raw material, not polished docs.
+  00-vision.md         Goals, non-goals, definition of done.
+  01-agc-primer.md     How the AGC worked: DSKY, channels, counters, the executive.
+  02-architecture.md   Phone host, AGC core, DSKY UI, device layer, future IO board.
+  03-io-devices.md     Every IO device the AGC used and what simulating it needs.
+  04-prior-art.md      Virtual AGC, the MIT source, licensing: what is reused vs. built.
+  roadmap.md           Phase 0 to 3 milestones.
+research/              Working notes and reference tables.
 ```
 
-## Status
+## Build and test
 
-**Phase 0 — Vision & Research.** This repo currently holds the concept, the
-architecture sketch, and the research needed before any code is written. Nothing
-here flies yet. See the [roadmap](docs/roadmap.md) for what comes next.
+Nothing to build yet. Phase 0's first build step is compiling `yaAGC` and `yaDSKY2` from the Virtual AGC project on a desktop; this repository's own code, tests and CI start with Phase 1.
 
 ## License
 
-The original Apollo flight software is US government work (public domain).
-Virtual AGC components are GPL-licensed. This repository's *own* content (docs,
-and future original code) is under the [MIT License](LICENSE) for now — with the
-explicit caveat that once Phase 1 links against GPL'd `yaAGC`, the combined,
-distributable work will likely need a GPL-compatible license. That decision is
-tracked in [`docs/04-prior-art.md`](docs/04-prior-art.md).
+This repository's original content (documentation, and future original code) is under the MIT License; see [LICENSE](LICENSE). It does not cover reused components: the Apollo flight software is US government work in the public domain, and Virtual AGC components such as `yaAGC` and `yaDSKY2` are GPL-licensed by their authors. See [NOTICE.md](NOTICE.md). A build that links against `yaAGC` will likely need a GPL-compatible license; that decision is tracked in [docs/04-prior-art.md](docs/04-prior-art.md).
